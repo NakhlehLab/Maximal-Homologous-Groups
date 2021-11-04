@@ -12,7 +12,7 @@ if __name__ == "__main__":
     parser.add_argument("-T","--thread",type=str, default='1',help="Blastn thread number, default 1")
     parser.add_argument("-go","--gapopen",type=str, default='5',help="Blastn gap open penalty, default 5")
     parser.add_argument("-ge","--gapextend",type=str, default='2',help="Blastn gap extend penalty, default 2")
-    parser.add_argument("-o","--output",type=str, default='module.txt', help="File containing the final partitioned modules, each line represents a module containing different blocks")
+    parser.add_argument("-o","--output",type=str, default='mhg.txt', help="File containing the final partitioned MHGs, each line represents a MHG containing different blocks")
     parser.add_argument("-t","--threshold",type=float, default = 0.4, help="Bitscore threshold for determining true homology")
     args = parser.parse_args()
     var_dict = vars(args)
