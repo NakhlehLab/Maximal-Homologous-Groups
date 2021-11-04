@@ -1,0 +1,35 @@
+import argparse
+import os
+import numpy as np
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Make blastn database & Build blastn queries')
+    parser.add_argument("-g","--genome",type=str, help="Genome nucleotide sequence directory (Required)")
+    parser.add_argument("-b","--blast",type=str, default='',help="Blastn bin directory; try to call 'makeblastdb, blastn' straightly if no path is inputted by default(if blast folder is added as an environemnt variable")
+    parser.add_argument("-db","--database",type=str, default='./blastn_db/',help="Directory to store blast nucleotide databases for each sequence in genome directory. By default write to current folder 'blastn_db'")
+    parser.add_argument("-q","--query",type=str, default='./blastn_against_bank/',help="Output folder storing all blastn queries in xml format. By defualt write to current folder 'blastn_against_bank'")
+    parser.add_argument("-w","--word_size",type=str, default='28',help="Blastn word size, default 28")
+    parser.add_argument("-T","--thread",type=str, default='1',help="Blastn thread number, default 1")
+    parser.add_argument("-go","--gapopen",type=str, default='5',help="Blastn gap open penalty, default 5")
+    parser.add_argument("-ge","--gapextend",type=str, default='2',help="Blastn gap extend penalty, default 2")
+    parser.add_argument("-o","--output",type=str, default='module.txt', help="File containing the final partitioned modules, each line represents a module containing different blocks")
+    parser.add_argument("-t","--threshold",type=float, default = 0.4, help="Bitscore threshold for determining true homology")
+    args = parser.parse_args()
+    var_dict = vars(args)
+
+    genome_dir = var_dict['genome']
+    blast_bin = var_dict['blast']
+    db_dir = var_dict['database']
+    output_dir = var_dict['query']
+    word_size = var_dict['word_size']
+    thread = var_dict['thread']
+    gapopen = var_dict['gapopen']
+    gapextend = var_dict['gapextend']
+    bitscore_threshold = var_dict['threshold']
+    module_file = var_dict['output']
+
+    if blast_bin == "":
+        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
+    else:
+        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -b {blast_bin} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
+    os.system(f"python3 MHG_partition.py -q {output_dir} -o {module_file} -t {bitscore_threshold}")

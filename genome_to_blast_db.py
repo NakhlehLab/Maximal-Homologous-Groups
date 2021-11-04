@@ -1,0 +1,52 @@
+import argparse
+import os
+import numpy as np
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Make blastn database & Build blastn queries')
+    parser.add_argument("-g","--genome",type=str, help="Genome nucleotide sequence directory (Required)")
+    parser.add_argument("-b","--blast",type=str, default='',help="Blastn bin directory; try to call 'makeblastdb, blastn' straightly if no path is inputted by default(if blast folder is added as an environemnt variable")
+    parser.add_argument("-db","--database",type=str, default='./blastn_db/',help="Directory to store blast nucleotide databases for each sequence in genome directory. By default write to current folder 'blastn_db'")
+    parser.add_argument("-q","--query",type=str, default='./blastn_against_bank/',help="Output folder storing all blastn queries in xml format. By defualt write to current folder 'blastn_against_bank'")
+    parser.add_argument("-w","--word_size",type=str, default='28',help="Blastn word size, default 28")
+    parser.add_argument("-T","--thread",type=str, default='1',help="Blastn thread number, default 1")
+    parser.add_argument("-go","--gapopen",type=str, default='5',help="Blastn gap open penalty, default 5")
+    parser.add_argument("-ge","--gapextend",type=str, default='2',help="Blastn gap extend penalty, default 2")
+    args = parser.parse_args()
+    var_dict = vars(args)
+
+    genome_dir = var_dict['genome']
+    blast_bin = var_dict['blast']
+    db_dir = var_dict['database']
+    output_dir = var_dict['query']
+    word_size = var_dict['word_size']
+    thread = var_dict['thread']
+    gapopen = var_dict['gapopen']
+    gapextend = var_dict['gapextend']
+
+
+    if genome_dir == None:
+        raise RuntimeError("No genome folder is provided")
+
+    for argument in [db_dir,output_dir]:
+        if not os.path.exists(argument):
+            os.mkdir(argument)
+            print("New folder %s is created" % argument)
+
+    bank_path = os.path.join(db_dir,'genomeBank.fasta')
+    os.system("cp %s/* %s" % (genome_dir,db_dir))
+    os.system("cat %s/* > %s" % (db_dir,bank_path))
+
+    for fasta in list(os.listdir(db_dir)):
+        fasta_path = os.path.join(db_dir, fasta)
+        command = os.path.join(blast_bin, 'makeblastdb')
+        os.system("%s -in %s -dbtype nucl" % (command,fasta_path))
+
+    taxa = list(np.unique((os.listdir(genome_dir))))
+    for file in taxa:
+        command = os.path.join(blast_bin, 'blastn')
+        query_path = os.path.join(db_dir,file)
+        output_path = os.path.join(output_dir,file+'.xml')
+        os.system("%s -query %s -db %s -outfmt 5 -out %s -word_size %s -num_threads %s -gapopen %s -gapextend %s" % (command,query_path,bank_path,output_path,word_size,thread,gapopen,gapextend))
+
+    print("Blastn query finished; ready to partition")
