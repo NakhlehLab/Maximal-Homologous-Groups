@@ -1577,7 +1577,7 @@ def main(logger, moduleFileName, G, tempBedFile = 'bedtoolTemp.txt'):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Partition and generate modules')
     parser.add_argument("-q","--query",type=str, help="Input folder for module partition storing all blastn queries in xml format")
-    parser.add_argument("-o","--output",type=str, default='module.txt', help="File containing the final partitioned modules, each line represents a module containing different blocks")
+    parser.add_argument("-o","--output",type=str, default='mhg.txt', help="File containing the final partitioned modules, each line represents a module containing different blocks")
     parser.add_argument("-t","--threshold",type=float, default = 0.4, help="Bitscore threshold for determining true homology")
     args = parser.parse_args()
     var_dict = vars(args)
@@ -1614,8 +1614,8 @@ if __name__ == "__main__":
     graph_end_time = time.time()
     logger.info(f"alignment graph finished building in time: {graph_end_time - df_start_time}")
 
-    logger.info(f"starting traversing the alignment graph and module partition")
+    logger.info(f"starting traversing the alignment graph and MHG partition")
     main(logger, module_file, G)
     partition_end_time = time.time()
-    logger.info(f"traversing finished module partition finished in: {partition_end_time-graph_end_time}")
-    logger.info(f"modules written into {module_file}")
+    logger.info(f"traversing finished MHG partition finished in: {partition_end_time-graph_end_time}")
+    logger.info(f"MHGs written into {module_file}")
