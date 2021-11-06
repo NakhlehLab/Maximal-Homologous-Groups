@@ -1,9 +1,9 @@
 # Maximal-Homologous-Groups
-MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, MHG is an annotation-free graph-based tool to merge and partition homologous groups, and outputs homologous groups for the target genome set where each group has its evolutionary history as a single tree and involves no rearrangements. The below sections introduce three sub-programs allowing users to:
+MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, MHG is an annotation-free graph-based tool to merge and partition homologous groups, and outputs homologous groups for the target genome set where each group has its evolutionary history as a single tree and involves no rearrangements. The below sections introduce three sub-programs and you can find an testing example case in the latter section:
 1. MHG.py: Start from nucleotide sequences to build blastn databases and queries. And then partition for MHGs.
 2. genome_to_blast_db.py: Start from nucleotide sequences, only build blastn databases and queries.
 3. MHG_partition.py: Start from Blastn queries, only partition for MHGs.
-You can find an testing example case in the latter section.
+
 
 ### **Main Function** Integrated Two-Step
 ```
