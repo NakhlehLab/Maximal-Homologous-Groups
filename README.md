@@ -77,3 +77,11 @@ optional arguments:
   -t THRESHOLD, --threshold THRESHOLD
                         Bitscore threshold for determining true homology
 ```
+
+
+### Testing Case
+```
+python3 MHG.py -g genomes/ -t 0.95
+```
+
+The command builds blastn databases and runs blastn queries, and partition for MHGs for four sample bacteria locatated in *genomes* with a bitscore threshold 0.95 (A Query with bit score above 95% of maximum bit score is considered as a true homology; a more detailed description of the threshold can be found in our paper). This example should run about 20-30 minute outputted to *mhg.txt* where each line is a MHG. This should have about 1000 MHGs. 
