@@ -64,7 +64,7 @@ optional arguments:
 
 ### **MHG Partition** Alignment Graph Construction and Traversal
 ```
-usage: MHG_partition.py [-h] [-q QUERY] [-o OUTPUT] [-t THRESHOLD]
+usage: MHG-partition [-h] [-q QUERY] [-o OUTPUT] [-t THRESHOLD]
 
 Partition and generate modules
 
