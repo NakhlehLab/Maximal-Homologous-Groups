@@ -1,8 +1,8 @@
 # Maximal-Homologous-Groups
 MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, MHG is an annotation-free graph-based tool to merge and partition homologous groups, and outputs homologous groups for the target genome set where each group has its evolutionary history as a single tree and involves no rearrangements. The below sections introduce three sub-programs and you can find an testing example case in the latter section:
-1. MHG.py: Start from nucleotide sequences to build blastn databases and queries. And then partition for MHGs.
-2. genome_to_blast_db.py: Start from nucleotide sequences, only build blastn databases and queries.
-3. MHG_partition.py: Start from Blastn queries, only partition for MHGs.
+1. MHG: Start from nucleotide sequences to build blastn databases and queries. And then partition for MHGs.
+2. genome-to-blast-db: Start from nucleotide sequences, only build blastn databases and queries.
+3. MHG-partition: Start from Blastn queries, only partition for MHGs.
 
 
 ### **Main Function** Integrated Two-Step
@@ -81,7 +81,7 @@ optional arguments:
 
 ### Testing Case
 ```
-python3 MHG.py -g genomes/ -t 0.95
+MHG -g genomes/ -t 0.95
 ```
 
 The command builds blastn databases and runs blastn queries, and partition for MHGs for four sample bacteria locatated in *genomes* with a bitscore threshold 0.95 (A Query with bit score above 95% of maximum bit score is considered as a true homology; a more detailed description of the threshold can be found in our paper). This example should run about 20-30 minute outputted to *mhg.txt* where each line is a MHG. This should have about 1000 MHGs. 
