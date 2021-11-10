@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 import os
 import numpy as np
@@ -12,8 +13,6 @@ if __name__ == "__main__":
     parser.add_argument("-T","--thread",type=str, default='1',help="Blastn thread number, default 1")
     parser.add_argument("-go","--gapopen",type=str, default='5',help="Blastn gap open penalty, default 5")
     parser.add_argument("-ge","--gapextend",type=str, default='2',help="Blastn gap extend penalty, default 2")
-    parser.add_argument("-o","--output",type=str, default='mhg.txt', help="File containing the final partitioned MHGs, each line represents a MHG containing different blocks")
-    parser.add_argument("-t","--threshold",type=float, default = 0.4, help="Bitscore threshold for determining true homology")
     args = parser.parse_args()
     var_dict = vars(args)
 
@@ -25,11 +24,30 @@ if __name__ == "__main__":
     thread = var_dict['thread']
     gapopen = var_dict['gapopen']
     gapextend = var_dict['gapextend']
-    bitscore_threshold = var_dict['threshold']
-    module_file = var_dict['output']
 
-    if blast_bin == "":
-        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
-    else:
-        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -b {blast_bin} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
-    os.system(f"python3 MHG_partition.py -q {output_dir} -o {module_file} -t {bitscore_threshold}")
+
+    if genome_dir == None:
+        raise RuntimeError("No genome folder is provided")
+
+    for argument in [db_dir,output_dir]:
+        if not os.path.exists(argument):
+            os.mkdir(argument)
+            print("New folder %s is created" % argument)
+
+    bank_path = os.path.join(db_dir,'genomeBank.fasta')
+    os.system("cp %s/* %s" % (genome_dir,db_dir))
+    os.system("cat %s/* > %s" % (db_dir,bank_path))
+
+    for fasta in list(os.listdir(db_dir)):
+        fasta_path = os.path.join(db_dir, fasta)
+        command = os.path.join(blast_bin, 'makeblastdb')
+        os.system("%s -in %s -dbtype nucl" % (command,fasta_path))
+
+    taxa = list(np.unique((os.listdir(genome_dir))))
+    for file in taxa:
+        command = os.path.join(blast_bin, 'blastn')
+        query_path = os.path.join(db_dir,file)
+        output_path = os.path.join(output_dir,file+'.xml')
+        os.system("%s -query %s -db %s -outfmt 5 -out %s -word_size %s -num_threads %s -gapopen %s -gapextend %s" % (command,query_path,bank_path,output_path,word_size,thread,gapopen,gapextend))
+
+    print("Blastn query finished; ready to partition")
