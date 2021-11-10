@@ -30,7 +30,7 @@ if __name__ == "__main__":
     module_file = var_dict['output']
 
     if blast_bin == "":
-        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
+        os.system(f"genome-to-blast-db -g {genome_dir} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
     else:
-        os.system(f"python3 genome_to_blast_db.py -g {genome_dir} -b {blast_bin} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
-    os.system(f"python3 MHG_partition.py -q {output_dir} -o {module_file} -t {bitscore_threshold}")
+        os.system(f"genome-to-blast-db -g {genome_dir} -b {blast_bin} -db {db_dir} -q {output_dir} -w {word_size} -T {thread} -go {gapopen} -ge {gapextend}")
+    os.system(f"MHG-partition -q {output_dir} -o {module_file} -t {bitscore_threshold}")
