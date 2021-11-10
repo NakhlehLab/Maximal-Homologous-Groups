@@ -7,7 +7,7 @@ MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, 
 
 ### **Main Function** Integrated Two-Step
 ```
-usage: MHG.py [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND] [-o OUTPUT] [-t THRESHOLD]
+usage: MHG [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND] [-o OUTPUT] [-t THRESHOLD]
 
 Make blastn database & Build blastn queries
 
@@ -38,7 +38,7 @@ optional arguments:
 
 ### **BLASTn** Pairwise Alignment
 ```
-usage: genome_to_blast_db.py [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND]
+usage: genome-to-blast-db [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND]
 
 Make blastn database & Build blastn queries
 
