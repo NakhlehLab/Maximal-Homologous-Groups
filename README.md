@@ -35,16 +35,16 @@ Using git clone, please install the below dependencies manually:
 
 Also, there are required built-in python packages:
 
-> [numpy] (https://pypi.org/project/numpy/)
+> [numpy](https://pypi.org/project/numpy/)
 
-> [pandas] (https://pypi.org/project/pandas/)
+> [pandas](https://pypi.org/project/pandas/)
 
-> [argparse] (https://pypi.org/project/argparse/)
+> [argparse](https://pypi.org/project/argparse/)
 
 
 
 ### **Main Function** Integrated Two-Step
-Please make sure to add the below two executable as two environment variables if you installed via git clone instead of conda. 
+Please make sure to add the below two executables(```genome-to-blast-db, MHG-partition```) as two environment variables when using ```MHG``` if you installed via git clone instead of conda. 
 
 ```
 usage: MHG [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND] [-o OUTPUT] [-t THRESHOLD]
@@ -123,5 +123,6 @@ optional arguments:
 ```
 MHG -g genomes/ -t 0.95
 ```
+The four test bacteria are stored in the folder ```genomes```, you are git clone to get it!
 
 The command builds blastn databases and runs blastn queries, and partition for MHGs for four sample bacteria locatated in *genomes* with a bitscore threshold 0.95 (A Query with bit score above 95% of maximum bit score is considered as a true homology; a more detailed description of the threshold can be found in our paper). This example should run about 20-30 minute outputted to *mhg.txt* where each line is a MHG. This should have about 1000 MHGs. 
