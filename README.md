@@ -1,4 +1,7 @@
 # Maximal-Homologous-Groups
+
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/mhg/badges/installer/conda.svg)](https://anaconda.org/bioconda/mhg)  [![Anaconda-Server Badge](https://anaconda.org/bioconda/mhg/badges/downloads.svg)](https://anaconda.org/bioconda/mhg)
+
 MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, MHG is an annotation-free graph-based tool to merge and partition homologous groups, and outputs homologous groups for the target genome set where each group has its evolutionary history as a single tree and involves no rearrangements. The below sections introduce three sub-programs and you can find an testing example case in the latter section:
 1. MHG: Start from nucleotide sequences to build blastn databases and queries. And then partition for MHGs.
 2. genome-to-blast-db: Start from nucleotide sequences, only build blastn databases and queries.
