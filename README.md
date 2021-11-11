@@ -26,13 +26,21 @@ But again, it is highly recommend to create a brand new environment.
 
 ## Installation Option 2: git clone 
 Using git clone, please install the below dependencies manually:
+
 > [Networkx](https://networkx.org/)
+
 > [Biopython](https://biopython.org/)
+
 > [BEDtools](https://bedtools.readthedocs.io/en/latest/)
+
 Also, there are required built-in python packages:
+
 > [numpy] (https://pypi.org/project/numpy/)
+
 > [pandas] (https://pypi.org/project/pandas/)
+
 > [argparse] (https://pypi.org/project/argparse/)
+
 
 
 ### **Main Function** Integrated Two-Step
