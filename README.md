@@ -8,7 +8,7 @@ MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, 
 3. MHG-partition: Start from Blastn queries, only partition for MHGs.
 
 ## Installation Option 1: conda install
-It is highly recommended to setup a new conda environment to avoid weird stuck through conda install!
+It is highly recommended to setup a new conda environment to avoid weird stuck through conda install! Installing MHG via conda will save the time figuring out the dependencies.
 ```
 conda create --name mhg python=3.7 
 conda activate mhg
@@ -19,12 +19,25 @@ conda install -c bioconda mhg
 ```
 
 If you encounter errors running directly ```conda install -c bioconda mhg```, try the three conda config above;
+
 If you are stuck on "solving environment", run ```conda config --remove channels conda-forge```, and then ```conda config --add channels conda-forge``` should solve the problem.
+
 But again, it is highly recommend to create a brand new environment. 
 
 ## Installation Option 2: git clone 
+Using git clone, please install the below dependencies manually:
+> [Networkx](https://networkx.org/)
+> [Biopython](https://biopython.org/)
+> [BEDtools](https://bedtools.readthedocs.io/en/latest/)
+Also, there are required built-in python packages:
+> [numpy] (https://pypi.org/project/numpy/)
+> [pandas] (https://pypi.org/project/pandas/)
+> [argparse] (https://pypi.org/project/argparse/)
+
 
 ### **Main Function** Integrated Two-Step
+Please make sure to add the below two executable as two environment variables if you installed via git clone instead of conda. 
+
 ```
 usage: MHG [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND] [-o OUTPUT] [-t THRESHOLD]
 
