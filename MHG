@@ -5,7 +5,7 @@ import numpy as np
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Make blastn database & Build blastn queries')
-    parser.add_argument("-g","--genome",type=str, help="Genome nucleotide sequence directory (Required)")
+    parser.add_argument("-g","--genome",type=str, default=None, help="Genome nucleotide sequence directory (Required)")
     parser.add_argument("-b","--blast",type=str, default='',help="Blastn bin directory; try to call 'makeblastdb, blastn' straightly if no path is inputted by default(if blast folder is added as an environemnt variable")
     parser.add_argument("-db","--database",type=str, default='./blastn_db/',help="Directory to store blast nucleotide databases for each sequence in genome directory. By default write to current folder 'blastn_db'")
     parser.add_argument("-q","--query",type=str, default='./blastn_against_bank/',help="Output folder storing all blastn queries in xml format. By defualt write to current folder 'blastn_against_bank'")

@@ -25,7 +25,6 @@ if __name__ == "__main__":
     gapopen = var_dict['gapopen']
     gapextend = var_dict['gapextend']
 
-
     if genome_dir == None:
         raise RuntimeError("No genome folder is provided")
 
