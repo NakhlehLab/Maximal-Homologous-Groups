@@ -46,7 +46,7 @@ Also, there are required built-in python packages:
 
 
 
-### **Main Function** Integrated Two-Step
+## **Main Function** Integrated Two-Step
 Please make sure to add the below two executables(```genome-to-blast-db, MHG-partition```) as two environment variables when using ```MHG``` if you installed via git clone instead of conda. 
 
 ```
@@ -79,7 +79,7 @@ optional arguments:
 ```
 
 
-### **BLASTn** Pairwise Alignment
+## **BLASTn** Pairwise Alignment
 ```
 usage: genome-to-blast-db [-h] [-g GENOME] [-b BLAST] [-db DATABASE] [-q QUERY] [-w WORD_SIZE] [-T THREAD] [-go GAPOPEN] [-ge GAPEXTEND]
 
@@ -105,7 +105,7 @@ optional arguments:
                         Blastn gap extend penalty, default 2
 ```
 
-### **MHG Partition** Alignment Graph Construction and Traversal
+## **MHG Partition** Alignment Graph Construction and Traversal
 ```
 usage: MHG-partition [-h] [-q QUERY] [-o OUTPUT] [-t THRESHOLD]
 
@@ -122,10 +122,15 @@ optional arguments:
 ```
 
 
-### Testing Case
+## Testing Case
 ```
 MHG -g genomes/ -t 0.95
 ```
 The four test bacteria are stored in the folder ```genomes```, you can git clone to get it!
 
 The command builds blastn databases and runs blastn queries, and partition for MHGs for four sample bacteria locatated in *genomes* with a bitscore threshold 0.95 (A Query with bit score above 95% of maximum bit score is considered as a true homology; a more detailed description of the threshold can be found in our paper). This example should run about 20-30 minute outputted to *mhg.txt* where each line is a MHG. This should have about 1000 MHGs. 
+
+
+## Output
+```MHG``` outputs a txt file where each line is an individual MHG. For each MHG, it contains at least two blocks, and each block is in a format:
+((*sequence_accession*,(*union_start*,*union_end*)),(*homology_start*,*homology_end*),*direction*)
