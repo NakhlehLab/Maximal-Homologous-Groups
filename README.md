@@ -136,3 +136,10 @@ The command builds blastn databases and runs blastn queries, and partition for M
 
 ((*sequence_accession*,(*union_start*,*union_end*)),(*homology_start*,*homology_end*),*direction*)
 
+*sequence_accession* is the contig ID from a genome, for example Escherichia coli O104 has a RefSeq assembly accession GCF_000299455.1, and it contains four contigs: chromosome NC_018658.1, plasmid NC_018666.1, plasmid NC_018659.1, plasmid NC_018660.1. *sequence_accession* will be starting from "NC_" in this case. 
+
+*union_start*,*union_end* are for internal purpose while traversing the alignment graph and they can be ignored while parsing the MHG results.
+
+*homology_start*,*homology_end* denote the start and end nucleotide indices in the *sequence_accession*, which indicates the actual homologous subsequence position.
+
+*direction* is a relative direction to the other blocks from the same line MHG, it is a value either "+" or "-" indicating forward or reverse complement respectively.
