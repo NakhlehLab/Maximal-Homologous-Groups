@@ -133,4 +133,6 @@ The command builds blastn databases and runs blastn queries, and partition for M
 
 ## Output
 ```MHG``` outputs a txt file where each line is an individual MHG. For each MHG, it contains at least two blocks, and each block is in a format:
+
 ((*sequence_accession*,(*union_start*,*union_end*)),(*homology_start*,*homology_end*),*direction*)
+
