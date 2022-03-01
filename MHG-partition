@@ -703,10 +703,29 @@ def nodeModulePartition(sourceNode, destNode, sourceToDestPath, destToSourcePath
     """
     overlappedPairs = bedtoolCall(sourceNode, nodeToPathDic, sourceToDestPath, tempBedFile)
     connectedModules = [nodePathToModuleDic[pair] for pair in overlappedPairs]
-    nodeToPathDic, nodePathToModuleDic, nodePartitionDic = recursiveModuleVSNodeChecking(connectedModules, sourceNode, destNode, sourceToDestPath, destToSourcePath, sourceDirection,destDirection, {}, nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
-    
+    nodeToPathDicCopy = nodeToPathDic.copy()
+    nodePathToModuleDicCopy = nodePathToModuleDic.copy()
+    try:
+        nodeToPathDic, nodePathToModuleDic, nodePartitionDic = recursiveModuleVSNodeChecking(connectedModules, sourceNode, destNode, sourceToDestPath, destToSourcePath, sourceDirection,destDirection, {}, nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
+    except:
+        nodeToPathDic, nodePathToModuleDic = nodeToPathDicCopy, nodePathToModuleDicCopy
+        for m_graph in list(nodePathToModuleDic.values()):
+            module = list(m_graph.nodes)
+            pathRecord = defaultdict(lambda:[])
+            nextModule = False
+            for block in module:
+                node = block[0]
+                blockPath = block[1]
+                for visitedPath in pathRecord[node]:
+                    isOveralapped, unionPath, overlappedLength = checkPathOverlap(blockPath,visitedPath)
+                    if isOveralapped:
+                        nextModule = True
+                        nodeToPathDic,nodePathToModuleDic = removeOldModule(m_graph, nodeToPathDic, nodePathToModuleDic)
+                        break
+                if nextModule:
+                    break
+
     destNodeBlocks = multiChopNodePartition(list(nodePartitionDic.keys()),destNode[1])
-    updatedPartitionList = []
     for element in destNodeBlocks:
         if element not in nodePartitionDic:
             nodeToPathDic[destNode].add(element)
