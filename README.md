@@ -7,6 +7,8 @@ MHG stands for Maximal Homologous Group. Inputting genome nucleotide seqeunces, 
 2. genome-to-blast-db: Start from nucleotide sequences, only build blastn databases and queries.
 3. MHG-partition: Start from Blastn queries, only partition for MHGs.
 
+![Algorithm Overview](https://github.com/NakhlehLab/Maximal-Homologous-Groups/blob/main/algorithm.png)
+
 ## Installation Option 1: conda install
 It is highly recommended to setup a new conda environment to avoid weird stuck through conda install! Installing MHG via conda will save the time figuring out the dependencies.
 ```
