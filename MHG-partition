@@ -1579,7 +1579,7 @@ def main(logger, moduleFileName, G, tempBedFile = 'bedtoolTemp.txt'):
             else:
 #                case of two modules
                 nodeToPathDic,nodePathToModuleDic = moduleModulePartition(sourceNode,destNode,sourceToDestPath,destToSourcePath,sourceDirection,destDirection,nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
-            modules = list(set([tuple(sorted(list(m_graph.nodes))) for m_graph in nodePathToModuleDic.values()]))
+            # modules = list(set([tuple(sorted(list(m_graph.nodes))) for m_graph in nodePathToModuleDic.values()]))
         nodeToPathDic,nodePathToModuleDic = trimShortModules(nodeToPathDic,nodePathToModuleDic)
         modules = list(set([tuple(sorted(list(m_graph.nodes))) for m_graph in nodePathToModuleDic.values()]))
         modules = [m for m in modules if len(m)>1]
