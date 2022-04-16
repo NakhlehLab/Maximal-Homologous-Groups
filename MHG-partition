@@ -14,6 +14,7 @@ from functools import partial
 from operator import eq
 import argparse
 import logging
+import copy
 warnings.filterwarnings('ignore')
 
 def seqToBinary(seq):
@@ -341,11 +342,15 @@ def partitionToTwoModules(blockNode, nucDistance, module):
                 destOffset = dest_first_array.count('1')
                 if destSegDirection == "+":
                     dest_midpoint = destStart + destOffset
+                    if dest_midpoint > destEnd:
+                        dest_midpoint = destEnd - dest_second_array.count('1')
                     dest_first_node = (destNode,(destStart,dest_midpoint),destSegDirection)
                     dest_second_node = (destNode, (dest_midpoint,destEnd),destSegDirection)
                     seg_distance_dic[destSeg] = destOffset
                 else:
                     dest_midpoint = destEnd - destOffset
+                    if dest_midpoint < destStart:
+                        dest_midpoint = destStart + dest_second_array.count('1')
                     dest_first_node = (destNode, (dest_midpoint,destEnd),destSegDirection)
                     dest_second_node = (destNode,(destStart,dest_midpoint),destSegDirection)
                     seg_distance_dic[destSeg] = dest_midpoint - destStart
@@ -361,6 +366,8 @@ def partitionToTwoModules(blockNode, nucDistance, module):
                 destOffset = dest_first_array.count('1')
                 if destSegDirection == "+":
                     dest_midpoint = destStart + destOffset
+                    if dest_midpoint > destEnd:
+                        dest_midpoint = destEnd - dest_second_array.count('1')
                     dest_first_node = (destNode,(destStart,dest_midpoint),destSegDirection)
                     dest_second_node = (destNode, (dest_midpoint,destEnd),destSegDirection)
                     seg_distance_dic[destSeg] = destOffset
@@ -446,7 +453,7 @@ def updateModuleTuple(blockNode,startOffSet,endOffSet, m_graph, destNode, destTo
     destOverlapped = tuple(sorted(destToSourcePath))
     if startOffSet == 0 and block[0] + endOffSet == block[1]:
 #       node total fit
-        new_m_graph = m_graph.copy()
+        new_m_graph = copy.deepcopy(m_graph)
         if sourceInModuleDirection == sourceDirection:
             new_m_graph.add_edge((sourceNode,sourceToDestPath, sourceInModuleDirection),(destNode,destOverlapped, destDirection), weight = sourceToDestArray)
             new_m_graph.add_edge((destNode,destOverlapped, destDirection),(sourceNode,sourceToDestPath, sourceInModuleDirection), weight = destToSourceArray)
@@ -703,8 +710,8 @@ def nodeModulePartition(sourceNode, destNode, sourceToDestPath, destToSourcePath
     """
     overlappedPairs = bedtoolCall(sourceNode, nodeToPathDic, sourceToDestPath, tempBedFile)
     connectedModules = [nodePathToModuleDic[pair] for pair in overlappedPairs]
-    nodeToPathDicCopy = nodeToPathDic.copy()
-    nodePathToModuleDicCopy = nodePathToModuleDic.copy()
+    nodeToPathDicCopy = copy.deepcopy(nodeToPathDic)
+    nodePathToModuleDicCopy = copy.deepcopy(nodePathToModuleDic)
     try:
         nodeToPathDic, nodePathToModuleDic, nodePartitionDic = recursiveModuleVSNodeChecking(connectedModules, sourceNode, destNode, sourceToDestPath, destToSourcePath, sourceDirection,destDirection, {}, nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
     except:
@@ -789,7 +796,7 @@ def joinTwoModules(moduleA, moduleB, nodeA, pathA, aDirection, nodeB, pathB, bDi
     According to one block from each module, there are four directions that matter: the mapping directions between two blocks, and the 
     directions for two block in their module respectively. 
     """
-    moduleUnion = moduleA.copy()
+    moduleUnion = copy.deepcopy(moduleA)
     aModuleList = list(moduleA.nodes)
     bModuleList = list(moduleB.nodes)
     aDirectionInModuleA, bDirectionInModuleB = None, None
@@ -1373,8 +1380,8 @@ def moduleModulePartition(nodeA,nodeB,pathAtoB,partBtoA, directionAtoB,direction
     overlappedPairs = bedtoolCall(nodeB, nodeToPathDic, partBtoA)
     bConnectedModules = [nodePathToModuleDic[pair] for pair in overlappedPairs]
     
-    nodeToPathDicCopy = nodeToPathDic.copy()
-    nodePathToModuleDicCopy = nodePathToModuleDic.copy()
+    nodeToPathDicCopy = copy.deepcopy(nodeToPathDic)
+    nodePathToModuleDicCopy = copy.deepcopy(nodePathToModuleDic)
     try:
         partitionBlockDic, moduleUpdateDic = chopModulesAndUpdateGraph(bConnectedModules,nodeB,partBtoA,directionBtoA,{},{},nodeToPathDic,nodePathToModuleDic)
     except:
@@ -1430,8 +1437,8 @@ def moduleModulePartition(nodeA,nodeB,pathAtoB,partBtoA, directionAtoB,direction
             continue
         overlappedPairs = bedtoolCall(nodeA, nodeToPathDic, correspondingPath)
         connectedModules = [nodePathToModuleDic[pair] for pair in overlappedPairs]
-        nodeToPathDicCopy = nodeToPathDic.copy()
-        nodePathToModuleDicCopy = nodePathToModuleDic.copy()
+        nodeToPathDicCopy = copy.deepcopy(nodeToPathDic)
+        nodePathToModuleDicCopy = copy.deepcopy(nodePathToModuleDic)
         try:
             nodeToPathDic, nodePathToModuleDic = recursiveModuleVSModuleChecking(connectedModules, nodeA, nodeB, correspondingPath, blockPath, directionAtoB,directionBtoA,correspondingModule,nodeToPathDic, nodePathToModuleDic, subArrayAtoB, subArrayBtoA)
         except:
@@ -1499,7 +1506,7 @@ def main(logger, moduleFileName, G, tempBedFile = 'bedtoolTemp.txt'):
             big_cc = True
             big_cc_edge_count = numberOfEdges
         elif numberOfEdges > 10000:
-            logger.info(f"cc number {counter} is a big cc, big but not that big, but still big; could take a few hours")
+            logger.info(f"cc number {counter} is a big cc, truly big one, will take a dozen of hours")
             big_cc = True
             big_cc_edge_count = numberOfEdges
         numberOfEdges = 0
@@ -1621,7 +1628,7 @@ if __name__ == "__main__":
     blastDf = pd.concat(frames)
     df = getEdgeDf(blastDf)
     readyToGraphDf = updateNode(df)
-
+    
     logger.info(f"start building an alignment graph")
     G = nx.MultiDiGraph()
     first = [tuple(d) for d in readyToGraphDf[['sourceNode', 'destNode','qEdge']].values]
