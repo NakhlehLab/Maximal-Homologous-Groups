@@ -731,6 +731,8 @@ def nodeModulePartition(sourceNode, destNode, sourceToDestPath, destToSourcePath
                         break
                 if nextModule:
                     break
+                
+        return nodeToPathDic,nodePathToModuleDic
 
     destNodeBlocks = multiChopNodePartition(list(nodePartitionDic.keys()),destNode[1])
     for element in destNodeBlocks:
