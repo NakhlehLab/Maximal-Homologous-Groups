@@ -399,6 +399,18 @@ def removeOldModule(oldModule, nodeToPathDic, nodePathToModuleDic):
         nodePathToModuleDic.pop((nodeName, pathTuple),None)
     return nodeToPathDic, nodePathToModuleDic
 
+def sanity(nodeToPathDic,nodePathToModuleDic):
+    for node in nodeToPathDic:
+        interval_list = list(sorted(nodeToPathDic[node]))
+        overlap_pairs = [(interval_list[i], interval_list[i+1]) for i in range(len(interval_list)-1) if interval_list[i+1][0]<interval_list[i][1]]
+        for tup1, tup2 in overlap_pairs:
+            tup1_len, tup2_len = tup1[1]-tup1[0], tup2[1]-tup2[0]
+            if tup1_len < tup2_len:
+                removeOldModule(nodePathToModuleDic[(node,tup1)], nodeToPathDic, nodePathToModuleDic)
+            else:
+                removeOldModule(nodePathToModuleDic[(node,tup2)], nodeToPathDic, nodePathToModuleDic)
+    return nodeToPathDic, nodePathToModuleDic
+
 def updateNewModule(newModule, nodeToPathDic, nodePathToModuleDic, trimLength = 20):
     """
     Insert new module to nodeToPathDic and nodePathToModuleDic
@@ -716,21 +728,7 @@ def nodeModulePartition(sourceNode, destNode, sourceToDestPath, destToSourcePath
         nodeToPathDic, nodePathToModuleDic, nodePartitionDic = recursiveModuleVSNodeChecking(connectedModules, sourceNode, destNode, sourceToDestPath, destToSourcePath, sourceDirection,destDirection, {}, nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
     except:
         nodeToPathDic, nodePathToModuleDic = nodeToPathDicCopy, nodePathToModuleDicCopy
-        for m_graph in list(nodePathToModuleDic.values()):
-            module = list(m_graph.nodes)
-            pathRecord = defaultdict(lambda:[])
-            nextModule = False
-            for block in module:
-                node = block[0]
-                blockPath = block[1]
-                for visitedPath in pathRecord[node]:
-                    isOveralapped, unionPath, overlappedLength = checkPathOverlap(blockPath,visitedPath)
-                    if isOveralapped:
-                        nextModule = True
-                        nodeToPathDic,nodePathToModuleDic = removeOldModule(m_graph, nodeToPathDic, nodePathToModuleDic)
-                        break
-                if nextModule:
-                    break
+        nodeToPathDic, nodePathToModuleDic = sanity(nodeToPathDic, nodePathToModuleDic)
                 
         return nodeToPathDic,nodePathToModuleDic
 
@@ -1445,21 +1443,8 @@ def moduleModulePartition(nodeA,nodeB,pathAtoB,partBtoA, directionAtoB,direction
             nodeToPathDic, nodePathToModuleDic = recursiveModuleVSModuleChecking(connectedModules, nodeA, nodeB, correspondingPath, blockPath, directionAtoB,directionBtoA,correspondingModule,nodeToPathDic, nodePathToModuleDic, subArrayAtoB, subArrayBtoA)
         except:
             nodeToPathDic, nodePathToModuleDic = nodeToPathDicCopy, nodePathToModuleDicCopy
-            for m_graph in list(nodePathToModuleDic.values()):
-                module = list(m_graph.nodes)
-                pathRecord = defaultdict(lambda:[])
-                nextModule = False
-                for block in module:
-                    node = block[0]
-                    blockPath = block[1]
-                    for visitedPath in pathRecord[node]:
-                        isOveralapped, unionPath, overlappedLength = checkPathOverlap(blockPath,visitedPath)
-                        if isOveralapped:
-                            nextModule = True
-                            nodeToPathDic,nodePathToModuleDic = removeOldModule(m_graph, nodeToPathDic, nodePathToModuleDic)
-                            break
-                    if nextModule:
-                        break
+            nodeToPathDic, nodePathToModuleDic = sanity(nodeToPathDic, nodePathToModuleDic)
+            
     return nodeToPathDic, nodePathToModuleDic
 
 def checkPathOverlap(moduleBlockPath,genePath):
@@ -1588,7 +1573,7 @@ def main(logger, moduleFileName, G, tempBedFile = 'bedtoolTemp.txt'):
             else:
 #                case of two modules
                 nodeToPathDic,nodePathToModuleDic = moduleModulePartition(sourceNode,destNode,sourceToDestPath,destToSourcePath,sourceDirection,destDirection,nodeToPathDic,nodePathToModuleDic, sourceToDestArray, destToSourceArray)
-            # modules = list(set([tuple(sorted(list(m_graph.nodes))) for m_graph in nodePathToModuleDic.values()]))
+
         nodeToPathDic,nodePathToModuleDic = trimShortModules(nodeToPathDic,nodePathToModuleDic)
         modules = list(set([tuple(sorted(list(m_graph.nodes))) for m_graph in nodePathToModuleDic.values()]))
         modules = [m for m in modules if len(m)>1]
