@@ -110,148 +110,49 @@ def blastToDf(df, threshold, constant = 1.6446838):
     df.reset_index(drop=True, inplace=True)
     return df
 
-def checkOverlap(aNode,bNode):
-    """
-    Input: Two intervals (start,end)
-    Output: A tuple(boolean, interval). The boolean is True is the two input intervals are overlapped, False if the two intervals are
-            disjoint. If the boolean is True, the returned interval is the superset of the two input intervals. If the boolean is False,
-            the returned interval is the first interval in the input.
-    """
-    aStart = aNode[0]
-    aEnd = aNode[1]
-    bStart = bNode[0]
-    bEnd = bNode[1]
-    if (bStart >= aStart and bStart <= aEnd) or (aStart >= bStart and aStart <= bEnd):
-        return True, (np.min([aStart,bStart,aEnd,bEnd]),np.max([aStart,bStart,aEnd,bEnd]))
-    elif (bEnd >= aEnd and bEnd <= aStart) or (aEnd >= bEnd and aEnd <= bStart):
-        return True, (np.min([aStart,bStart,aEnd,bEnd]),np.max([aStart,bStart,aEnd,bEnd]))
-    elif (aStart >= bEnd and aStart <= bStart) or (bEnd >= aStart and bEnd <= aEnd):
-        return True, (np.min([aStart,bStart,aEnd,bEnd]),np.max([aStart,bStart,aEnd,bEnd]))
-    else:
-        return False, aNode
-        
-
-def recursiveCheckOvelap(currentIndex,columnStartName, columnEndName, df):
-    """
-    Input: A dataframe containing blast calls, and a specific data entry
-    Output: The dataframe after Replacing the blast call pair (subject and the query) in place with the superset if there is an overlap.
-    """
-    i = currentIndex
-    row = df.iloc[i]
-    qStart = row[columnStartName]
-    qEnd = row[columnEndName]
-    curNode = (qStart,qEnd)
-    overlap = None
-    offset = 0
-    while overlap != False:
-        try:
-            nextIndex = i+1
-            nextRow = df.iloc[nextIndex]
-            nextNode = (nextRow[columnStartName],nextRow[columnEndName])
-            overlap, curNode = checkOverlap(curNode,nextNode)
-            i += 1
-            offset += 1
-        except:
-            return curNode,offset+1
-    return curNode, offset
-
-
-def getEdgeDf(wholeDf):
-    """
-    Input: A directory
-    Output: A dataframe which copies the blast calls with two additional columns: source and dest which are the nodes in the later
-            interval graph.
-    Merge overlapped nodes to a single node with the superset
-    """
-    wholeDf = blastToDf(wholeDf, threshold = bitscore_threshold)
-    allQueryOrganism = list(set(wholeDf.queryAccVer.unique()))
-    allSubjectOrganism = list(set(wholeDf.subjectAccVer.unique()))
-    frame = []
-    for queryAccVer in allQueryOrganism:
-        queryDf = wholeDf[wholeDf.queryAccVer == queryAccVer]
-        queryDf = queryDf.sort_values(['queryAccVer','qStart'])
-        queryLength = queryDf.shape[0]
-        sourceNode = np.array([None]*queryLength)
-        i = 0 
-        while i < queryLength:
-            node, offset = recursiveCheckOvelap(i,'qStart', 'qEnd', queryDf)
-            sourceNode[i:i+offset] = [(node)]*offset
-            i += offset
-        queryDf['sourceNode'] = sourceNode
-        frame.append(queryDf)
-    df = pd.concat(frame)
+def union_node(df):
+    raw_bed_file = open('raw.bed','w')
+    row_num = df.shape[0]
+    
+    queryAcc = list(df.queryAccVer)
+    queryStart = list(np.array(df.qStart).astype(int))
+    queryEnd = list(np.array(df.qEnd).astype(int))
+    subjectAcc = list(df.subjectAccVer)
+    subjectStart = list(np.array(df.sStart).astype(int))
+    subjectEnd = list(np.array(df.sEnd).astype(int))
+    
+    query_entry_list = ['\t'.join([queryAcc[i],str(np.min([queryStart[i],queryEnd[i]])),str(np.max([queryStart[i],queryEnd[i]]))]) for i in range(row_num)]
+    subject_entry_list = ['\t'.join([subjectAcc[i],str(np.min([subjectStart[i],subjectEnd[i]])),str(np.max([subjectStart[i],subjectEnd[i]]))]) for i in range(row_num)]
+    raw_bed_file.write('\n'.join(query_entry_list)+'\n')
+    raw_bed_file.write('\n'.join(subject_entry_list))
+    raw_bed_file.close()
+    
+    sort_raw_bed_command = f"bedtools sort -i raw.bed > sort.bed"
+    os.system(sort_raw_bed_command)
+    merge_sort_bed_commnad = f"bedtools merge -i sort.bed > merged_sort.bed"
+    os.system(merge_sort_bed_commnad)
+    intersect_command = 'bedtools intersect -a raw.bed -b merged_sort.bed -wo > map_node.bed'
+    os.system(intersect_command)
+    
+    map_node_df = pd.read_csv('map_node.bed', delimiter='\t',header=None)
+    map_node_df.columns = ['id1','start1','end1','id2','start2','end2','length']
+    node_acc_list = list(map_node_df.id2)
+    node_start_list = list(np.array(map_node_df.start2).astype(int))
+    node_end_list = list(np.array(map_node_df.end2).astype(int))
+    all_node_list = list(zip(node_acc_list,zip(node_start_list,node_end_list)))
+    
+    source_node_list = all_node_list[:row_num]
+    dest_node_list = all_node_list[row_num:]
+    df['sourceNode'] = source_node_list
+    df['destNode'] = dest_node_list
+    
+    os.remove('raw.bed')
+    os.remove('sort.bed')
+    os.remove('merged_sort.bed')
+    os.remove('map_node.bed')
+    df = df.sort_values(['qStart'])
     df.reset_index(drop=True, inplace=True)
     
-    frame = []
-    for subjectAccVer in allSubjectOrganism:
-        queryDf = df[df.subjectAccVer == subjectAccVer][df.queryAccVer != subjectAccVer]
-        queryDf = queryDf.sort_values(['subjectAccVer','sStart'])
-        queryLength = queryDf.shape[0]
-        destNode = np.array([None]*queryLength)
-        i = 0 
-        while i < queryLength:
-            node, offset = recursiveCheckOvelap(i,'sStart', 'sEnd', queryDf)
-            destNode[i:i+offset] = [(node)]*offset
-            i += offset
-        queryDf['destNode'] = destNode
-        frame.append(queryDf)
-    df = pd.concat(frame)
-    df.reset_index(drop=True, inplace=True)
-    return df
-
-def updateNode(df):
-    """
-    Input: The 'total' dataframe which integrates all the blast calls with the new node names
-    Output: The same dataframe but with the merge of the source and dest node.
-    This function mainly merges the current source nodes and dest nodes. Even after the previous merging step, it only gurantees that
-    there is no overlapped region within either source nodes or dest nodes, but not within the union. So this step gurantees the
-    uniqueness of nodes.
-    """
-    organisms = list(set(df.queryAccVer.unique()).union(set(df.subjectAccVer.unique())))
-    frame = []
-    for organism in organisms:    
-        sourceList = list(df[df.queryAccVer == organism].sourceNode)
-        destList = list(df[df.subjectAccVer == organism].destNode)
-        totalList = list(set(sourceList + destList))
-        totalList = [i for i in totalList if isinstance(i,tuple)]
-        organismDf = pd.DataFrame(totalList, columns =['start', 'end'])
-        organismDf = organismDf.sort_values('start')
-        queryLength = len(totalList)
-        mappedNode = np.array([None]*queryLength)
-        organismList = np.array([organism]*queryLength)
-        i = 0 
-        while i < queryLength:
-            node, offset = recursiveCheckOvelap(i,'start', 'end', organismDf)
-            mappedNode[i:i+offset] = [(node)]*offset
-            i += offset
-        organismDf['organism'] = organismList
-        organismDf['mapped'] = mappedNode
-        frame.append(organismDf)
-    mappedNodeDf = pd.concat(frame)
-    mappedNodeDf.reset_index(drop=True, inplace=True)
-    dfRowNum = df.shape[0]
-    updatedSourceList = np.array([None]*dfRowNum)
-    updatedDestList = np.array([None]*dfRowNum)
-    for i in range(dfRowNum):
-        row = df.iloc[i]
-        query = row.queryAccVer
-        sourceNode = row.sourceNode
-        subject = row.subjectAccVer
-        destNode = row.destNode
-        sS = sourceNode[0]
-        sE = sourceNode[1]
-        eS = destNode[0]
-        eE = destNode[1]
-        try:
-            updatedSourceList[i] = (query,list(mappedNodeDf[mappedNodeDf.organism == query][mappedNodeDf.start == sS][mappedNodeDf.end == sE].mapped)[0])        
-        except:
-            updatedSourceList[i] = (query,sourceNode)
-        try:
-            updatedDestList[i] = (subject,list(mappedNodeDf[mappedNodeDf.organism == subject][mappedNodeDf.start == eS][mappedNodeDf.end == eE].mapped)[0])
-        except:
-            updatedDestList[i] = (subject,destNode)
-    df['sourceNode'] = updatedSourceList
-    df['destNode'] = updatedDestList
     return df
 
 def nth_item(n, item, iterable):
@@ -1613,8 +1514,8 @@ if __name__ == "__main__":
             df = parseBlastXML(db_directory+file)
             frames.append(df)
     blastDf = pd.concat(frames)
-    df = getEdgeDf(blastDf)
-    readyToGraphDf = updateNode(df)
+    blastDf = blastToDf(blastDf, threshold = bitscore_threshold)
+    readyToGraphDf = union_node(blastDf)
     
     logger.info(f"start building an alignment graph")
     G = nx.MultiDiGraph()
