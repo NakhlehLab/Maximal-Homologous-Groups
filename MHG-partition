@@ -162,7 +162,7 @@ def union_node(df):
     map_list = [tuple(sorted((pair[0],pair[1]))) for pair in map_list]
 
     df['align'] = map_list
-    df = df.drop_duplicates(subset=['align'],keep = 'first', inplace = False)
+    df.drop_duplicates(subset=['align'],keep = 'first', inplace = True)
 
     df = df.sort_values(['qStart'])
     df.reset_index(drop=True, inplace=True)
