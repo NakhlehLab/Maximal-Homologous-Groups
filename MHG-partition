@@ -150,6 +150,20 @@ def union_node(df):
     os.remove('sort.bed')
     os.remove('merged_sort.bed')
     os.remove('map_node.bed')
+
+    sPath_list = list(df['qPair'])
+    dPath_list = list(df['sPair'])
+    sourceNodeAndPath_list = list(zip(source_node_list,sPath_list))
+    destNodeAndPath_list = list(zip(dest_node_list,dPath_list))
+
+    sourceNodeAndPath_list = [(pair[0],tuple(sorted(pair[1]))) for pair in sourceNodeAndPath_list]
+    destNodeAndPath_list = [(pair[0],tuple(sorted(pair[1]))) for pair in destNodeAndPath_list]
+    map_list = list(zip(sourceNodeAndPath_list,destNodeAndPath_list))
+    map_list = [tuple(sorted((pair[0],pair[1]))) for pair in map_list]
+
+    df['align'] = map_list
+    df = df.drop_duplicates(subset=['align'],keep = 'first', inplace = False)
+
     df = df.sort_values(['qStart'])
     df.reset_index(drop=True, inplace=True)
     
