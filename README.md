@@ -1,4 +1,4 @@
-# Maximal-Homologous-Groups
+# MHG-Finder
 
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/mhg/badges/installer/conda.svg)](https://anaconda.org/bioconda/mhg)  [![Anaconda-Server Badge](https://anaconda.org/bioconda/mhg/badges/downloads.svg)](https://anaconda.org/bioconda/mhg)
 
